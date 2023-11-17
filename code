@@ -1,0 +1,235 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import os
+df = pd.read_csv('/content/anime.csv')
+df
+print(f"Shape of The Anime Dataset : {df.shape}")
+print(f"Informations About Anime Dataset :\n")
+print(df.info())
+print(f"Summary of The Anime Dataset :")
+print(df.describe())
+df.isnull()
+df.isnull().sum(0)
+df.mean()
+df2 = df.fillna(6)
+df2.isnull().sum()
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_style("white")
+sns.set_context("poster",font_scale = .7)
+
+palette = ["#1d7874","#679289","#f4c095","#ee2e31","#ffb563","#918450","#f85e00","#a41623","#9a031e","#d6d6d6","#ffee32","#ffd100","#333533","#202020"]
+top_anime = df.copy()
+top_anime.drop_duplicates(subset ="name", keep = "first", inplace = True)
+top_anime_temp1 = top_anime.sort_values(["members"],ascending=False)
+
+plt.subplots(figsize=(20,8))
+p = sns.barplot(x=top_anime_temp1["name"][:14],y=top_anime_temp1["members"],palette=palette, saturation=1, edgecolor = "#1c1c1c", linewidth = 2)
+p.axes.set_title("\nTop Anime Community\n", fontsize=25)
+plt.ylabel("Total Member" , fontsize = 20)
+plt.xlabel("\nAnime Name" , fontsize = 20)
+
+plt.xticks(rotation = 90)
+for container in p.containers:
+    p.bar_label(container,label_type = "center",padding = 6,size = 15,color = "black",rotation = 90,
+    bbox={"boxstyle": "round", "pad": 0.6, "facecolor": "orange", "edgecolor": "black", "alpha": 1})
+
+sns.despine(left=True, bottom=True)
+plt.show()
+print("Anime Categories :")
+top_anime_temp1["type"].value_counts()
+plt.subplots(figsize=(12, 12))
+
+labels = "TV","OVA","Movie","Special","ONA","Music"
+size = 0.5
+
+wedges, texts, autotexts = plt.pie([len(top_anime_temp1[top_anime_temp1["type"]=="TV"]["type"]),
+                                    len(top_anime_temp1[top_anime_temp1["type"]=="OVA"]["type"]),
+                                    len(top_anime_temp1[top_anime_temp1["type"]=="Movie"]["type"]),
+                                    len(top_anime_temp1[top_anime_temp1["type"]=="Special"]["type"]),
+                                    len(top_anime_temp1[top_anime_temp1["type"]=="ONA"]["type"]),
+                                    len(top_anime_temp1[top_anime_temp1["type"]=="Music"]["type"])],
+                                    explode = (0,0,0,0,0,0),
+                                    textprops=dict(size= 20, color= "white"),
+                                    autopct="%.2f%%",
+                                    pctdistance = 0.7,
+                                    radius=.9,
+                                    colors = palette,
+                                    shadow = True,
+                                    wedgeprops=dict(width = size, edgecolor = "#1c1c1c",
+                                    linewidth = 4),
+                                    startangle = 0)
+
+plt.legend(wedges, labels, title="Category",loc="center left",bbox_to_anchor=(1, 0, 0.5, 1))
+plt.title("\nAnime Categories Distribution",fontsize=20)
+plt.show()
+plt.subplots(figsize = (20,8))
+p = sns.countplot(x = top_anime_temp1["type"], order = top_anime_temp1["type"].value_counts().index, palette = palette, saturation = 1, edgecolor = "#1c1c1c", linewidth = 3)
+p.axes.set_title("\nAnime Categories Hub\n" ,fontsize = 25)
+plt.ylabel("Total Anime" ,fontsize = 20)
+plt.xlabel("\nAnime Category" ,fontsize = 20)
+plt.xticks(rotation = 0)
+for container in p.containers:
+    p.bar_label(container,label_type = "center",padding = 10,size = 25,color = "black",rotation = 0,
+    bbox={"boxstyle": "round", "pad": 0.4, "facecolor": "orange", "edgecolor": "black", "linewidth" : 3, "alpha": 1})
+
+sns.despine(left = True, bottom = True)
+plt.show()
+top_anime_temp2 = top_anime.sort_values(["rating"],ascending=False)
+
+_, axs = plt.subplots(2,1,figsize=(20,16),sharex=False,sharey=False)
+plt.tight_layout(pad=6.0)
+
+sns.histplot(top_anime_temp2["rating"],color=palette[11],kde=True,ax=axs[0],bins=20,alpha=1,fill=True,edgecolor=palette[12])
+axs[0].lines[0].set_color(palette[12])
+axs[0].set_title("\nAnime's Average Ratings Distribution\n",fontsize = 25)
+axs[0].set_xlabel("Rating\n", fontsize = 20)
+axs[0].set_ylabel("Total", fontsize = 20)
+
+sns.despine(left=True, bottom=True)
+plt.show()
+plt.subplots(figsize=(20,8))
+p = sns.barplot(x=top_anime_temp2["name"][:14],y=top_anime_temp2["rating"],palette=palette, saturation=1, edgecolor = "#1c1c1c", linewidth = 2)
+p.axes.set_title("\nTop Animes Based On Ratings\n",fontsize = 25)
+plt.ylabel("Average Rating",fontsize = 20)
+plt.xlabel("\nAnime Title",fontsize = 20)
+# plt.yscale("log")
+plt.xticks(rotation = 90)
+for container in p.containers:
+    p.bar_label(container,label_type = "center",padding = 10,size = 15,color = "black",rotation = 0,
+    bbox={"boxstyle": "round", "pad": 0.6, "facecolor": "orange", "edgecolor": "black", "alpha": 1})
+
+sns.despine(left=True, bottom=True)
+plt.show()
+print("Let's explore the ratings distribution of TV category :\n")
+
+_, axs = plt.subplots(1,2,figsize=(20,8),sharex=False,sharey=False)
+plt.tight_layout(pad=4.0)
+
+sns.histplot(top_anime_temp2[top_anime_temp2["type"]=="TV"]["rating"],color=palette[0],kde=True,ax=axs[0],bins=20,alpha=1,fill=True,edgecolor=palette[12])
+axs[0].lines[0].set_color(palette[11])
+axs[0].set_title("\nAnime's Average Ratings Distribution [Category : TV]\n",fontsize=20)
+axs[0].set_xlabel("Rating")
+axs[0].set_ylabel("Total")
+
+sns.despine(left=True, bottom=True)
+plt.show()
+print("Let's explore the ratings distribution of OVA category :\n")
+
+_, axs = plt.subplots(1,2,figsize=(20,8),sharex=False,sharey=False)
+plt.tight_layout(pad=4.0)
+
+sns.histplot(top_anime_temp2[top_anime_temp2["type"]=="OVA"]["rating"],color=palette[1],kde=True,ax=axs[0],bins=20,alpha=1,fill=True,edgecolor=palette[12])
+axs[0].lines[0].set_color(palette[11])
+axs[0].set_title("\nAnime's Average Ratings Distribution [Category : OVA]\n",fontsize=20)
+axs[0].set_xlabel("Rating")
+axs[0].set_ylabel("Total")
+
+sns.despine(left=True, bottom=True)
+plt.show()
+print("Let's explore the ratings distribution of MOVIE category :\n")
+
+_, axs = plt.subplots(1,2,figsize=(20,8),sharex=False,sharey=False)
+plt.tight_layout(pad=4.0)
+
+sns.histplot(top_anime_temp2[top_anime_temp2["type"]=="Movie"]["rating"],color=palette[2],kde=True,ax=axs[0],bins=20,alpha=1,fill=True,edgecolor=palette[12])
+axs[0].lines[0].set_color(palette[3])
+axs[0].set_title("\nAnime's Average Ratings Distribution [Category : Movie]\n",fontsize=20)
+axs[0].set_xlabel("Rating")
+axs[0].set_ylabel("Total")
+
+sns.despine(left=True, bottom=True)
+plt.show()
+print("Let's explore the ratings distribution of SPECIAL category :\n")
+
+_, axs = plt.subplots(1,2,figsize=(20,8),sharex=False,sharey=False)
+plt.tight_layout(pad=4.0)
+
+sns.histplot(top_anime_temp2[top_anime_temp2["type"]=="Special"]["rating"],color=palette[3],kde=True,ax=axs[0],bins=20,alpha=1,fill=True,edgecolor=palette[12])
+axs[0].lines[0].set_color(palette[11])
+axs[0].set_title("\nAnime's Average Ratings Distribution [Category : Special]\n",fontsize=20)
+axs[0].set_xlabel("Rating")
+axs[0].set_ylabel("Total")
+
+sns.despine(left=True, bottom=True)
+plt.show()
+print("Let's explore the ratings distribution of ONA category :\n")
+
+_, axs = plt.subplots(1,2,figsize=(20,8),sharex=False,sharey=False)
+plt.tight_layout(pad=4.0)
+
+sns.histplot(top_anime_temp2[top_anime_temp2["type"]=="ONA"]["rating"],color=palette[4],kde=True,ax=axs[0],bins=20,alpha=1,fill=True,edgecolor=palette[12])
+axs[0].lines[0].set_color(palette[3])
+axs[0].set_title("\nAnime's Average Ratings Distribution [Category : ONA]\n",fontsize=20)
+axs[0].set_xlabel("Rating")
+axs[0].set_ylabel("Total")
+
+sns.despine(left=True, bottom=True)
+plt.show()
+print("Let's explore the ratings distribution of MUSIC category :\n")
+
+_, axs = plt.subplots(1,2,figsize=(20,8),sharex=False,sharey=False)
+plt.tight_layout(pad=4.0)
+
+sns.histplot(top_anime_temp2[top_anime_temp2["type"]=="Music"]["rating"],color=palette[5],kde=True,ax=axs[0],bins=20,alpha=1,fill=True,edgecolor=palette[12])
+axs[0].lines[0].set_color(palette[11])
+axs[0].set_title("\nAnime's Average Ratings Distribution [Category : Music]\n",fontsize=20)
+axs[0].set_xlabel("Rating")
+axs[0].set_ylabel("Total")
+
+sns.despine(left=True, bottom=True)
+plt.show()
+from wordcloud import WordCloud
+
+wordcloud = WordCloud(width = 800, height = 250, background_color ="black",colormap ="RdYlGn",
+                      max_font_size=100, stopwords =None,repeat= True).generate(top_anime["genre"].str.cat(sep=", | , | ,"))
+
+print("let's explore how genre's wordcloud looks like\n")
+plt.figure(figsize = (20, 8),facecolor = "#ffd100")
+plt.imshow(wordcloud)
+plt.axis("off")
+plt.margins(x = 0, y = 0)
+plt.tight_layout(pad = 0)
+plt.show()
+from sklearn.linear_model import LinearRegression as lr
+X = df2.iloc[:,6:7]
+X
+y = df2.iloc[:,5:6]
+y
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=51)
+from sklearn.linear_model import LinearRegression
+lr = LinearRegression()
+print("shape of X_train = ",X_train.shape)
+print("shape of y_train = ",y_train.shape)
+
+print("shape of X_test = ",X_test.shape)
+print("shape of y_test = ",y_test.shape)
+lr.fit(X_train,y_train)
+lr.coef_
+lr.intercept_
+m = 3.93571802
+c = 50.44735504
+y = m*4+c
+y
+lr.predict([[4]])
+lr.predict([[4]])[0][0].round(2)
+y_pred = lr.predict(X_test)
+y_pred #this are the predict values
+import matplotlib.pyplot as plt
+plt.scatter(x=df.rating, y=df.members)
+plt.xlabel('rating')
+plt.ylabel('members')
+plt.show()
+plt.scatter(y_train,X_train)
+plt.scatter(X_test,y_test)
+plt.plot(X_train, lr.predict(X_train), color='r')
+plt.scatter(df2['rating'],df2['members'],alpha=0.5)
+plt.title('Scatter plot of Members w.r.t Ratings')
+plt.xlabel('rating')
+plt.ylabel('members')
+plt.show()
+df2
+df2.type.value_counts()
+df2.value_counts()
